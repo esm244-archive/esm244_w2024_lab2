@@ -1,0 +1,25 @@
+Start Date: 1988-06-01
+End Date: 2022-12-31
+
+Selected Fields     Field Label                   Time Step      Units     Dec. Places
+air_temp_5m         Air Temp 5m                   1-hour data    C         1
+barometer_mbar      Barometric Pressure           1-hour data    mbar      1
+wind_sp_5m          Wind Speed 5m                 1-hour data    m/s       3
+rain                Year-round Precipitation      1-hour data    mm        3
+
+Timestamp: 2024-01-17 14:54:14 AKST
+Data obtained from Toolik Field Station Weather Station Data Query (http://toolik.alaska.edu/edc/abiotic_monitoring/data_query.php)
+Additional metadata available from Arctic LTER (http://ecosystems.mbl.edu/arc/weather/tl/index.shtml)
+
+CITING DATA
+If you use data from the EDC, please cite the data according to following format:
+Environmental Data Center Team. Year of data retrieval. Meteorological monitoring program at Toolik, Alaska.
+Toolik Field Station, Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks, AK 99775.
+http://toolik.alaska.edu/edc/abiotic_monitoring/data_query.php
+
+INSTRUMENTATION METADATA (Instrumentation histories are accurate to the best of our knowledge, but not necessarily complete.)
+See full metadata history at https://toolik.alaska.edu/edc/monitoring/abiotic/weather.php?tab=metadata.
+Air Temperature and RH
+Pressure
+Wind
+Precipitation

@@ -1,0 +1,569 @@
+---
+title: "esm244_lab2"
+author: "Casey O'Hara, Nathan Grimes, Allison Horst"
+format: 
+  html:
+    code-fold: show
+    toc: true
+    number-sections: true
+editor: visual
+execute:
+  echo: true
+  message: false
+  warning: false
+---
+
+```{r setup}
+library(tidyverse)
+library(here)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(slider)
+```
+
+# Part 1: Time series with Toolik Lake data
+
+## Always look at your data
+
+Toolik Station (LTER) meteorological data (Source: Source: Shaver, G. 2019. A multi-year DAILY file for the Toolik Field Station at Toolik Lake, AK starting 1988 to present. ver 4. Environmental Data Initiative.)  See the [Toolik Field Station Environmental Data Center](https://www.uaf.edu/toolik/edc/index.php) site for more details.  This dataset has been modified for purposes of this lab (see code below if you are interested!).
+
+```{r prep hourly into daily}
+#| eval: false
+#| include: false
+toolik_daily_raw <- read_csv(here("data", "toolik_1hr_data.csv")) %>%
+  group_by(date) %>%
+  summarize(daily_air_temp = mean(air_temp_5m),
+            daily_precip   = sum(rain),
+            mean_barom     = mean(barometer_mbar),
+            mean_windspeed = mean(wind_sp_5m)) %>%
+  ### there are some missing dates which create annoying errors... fill 'em!
+  as_tsibble() %>%
+  fill_gaps() %>%
+  ### for demo purposes, let's replace missing values with an average for that 
+  ### day, across all years, plus noise (feasts and fable don't like missing 
+  ### values!)  NOTE: NEVER MAKE UP DATA LIKE THIS FOR A REAL ANALYSIS!!!!!!
+  index_by(day = ~yday(.)) %>%
+  mutate(m = mean(daily_air_temp, na.rm = TRUE),
+         e = rnorm(n = n(), mean = 0, sd = sd(daily_air_temp, na.rm = TRUE) / 2)) %>%
+  ungroup() %>%
+  mutate(daily_air_temp = ifelse(is.na(daily_air_temp), m + e, daily_air_temp)) %>%
+  select(-day, -m, -e)
+  
+
+ggplot(toolik_daily_raw %>% pivot_longer(-date), aes(x = date, y = value)) +
+  geom_line() +
+  facet_wrap(~name, ncol = 1, scales = 'free_y')
+
+toolik_daily_out <- toolik_daily_raw %>%
+  as.data.frame() %>%
+  mutate(date = paste(month(date), day(date), year(date), sep = '/'))
+
+
+write_csv(toolik_daily_out, here('data/toolik_daily.csv'))
+```
+
+
+### Read in data: 
+
+```{r}
+toolik <- read_csv(here("data", "toolik_daily.csv"))
+```
+
+Notice that (in this case, with the date formatted in the .csv) the date parsed (assumed class) as *character.* That limits the nice time series features we can use, so we'll quickly convert it into a `tsibble` (a time series data frame) so that we can use functions in `feasts` and `fable` to explore & analyze it. 
+
+Go ahead and try plotting the data as imported. 
+
+```{r}
+#| eval: false
+#| 
+ggplot(data = toolik, aes(x = date, y = daily_air_temp)) +
+  geom_line()
+
+### Booo we get a warning (only one observation per series)
+```
+
+Notice that it doesn't work - because R doesn't understand the date is a *date* until we tell it.
+
+### Convert the data frame to a tsibble
+
+Let's go ahead and convert it to a tsibble using the `as_tsibble()` function. First, we'll need to convert the date to a `date` class, *then* convert to a tsibble.  We could just keep it as a regular dataframe with a date column and do a lot with that, but the tsibble package gives lots of functionality around time series (thus the `ts` at the start).
+
+```{r}
+toolik_ts <- toolik %>% 
+  mutate(date = lubridate::mdy(date)) %>% 
+  as_tsibble(key = NULL, ### if we had multiple obs on same date from diff locations
+             index = date) ### time index, here our column is `date`
+```
+
+Now let's plot it: 
+```{r}
+ggplot(data = toolik_ts, aes(x = date, y = daily_air_temp)) +
+  geom_line() +
+  labs(x = "Date",
+       y = "Mean daily air temperature (Celsius)\n at Toolik Station")
+```
+
+We need to ask some big picture questions at this point, like: 
+
+- Does there appear to be an overall trend? No.
+- Does there appear to be seasonality? Yes.
+- Does there appear to be cyclicality? Unsure.
+- Any notable outliers or additional patterns? No noted.
+
+## Use `filter_index()` to filter by date-times!
+
+We can use `filter_index()` specifically to help us filter data by time spans. See `?filter_index()` for more information.
+
+### Example 1: Filter from December 2010 through January 2011
+
+```{r}
+toolik_ts %>% 
+  filter_index("2010-12" ~ "2011-01")
+```
+
+### Example 2: Filter from April 10, 2006 to May 15, 2006
+
+```{r}
+toolik_ts %>% 
+  filter_index("2006-04-10" ~ "2006-05-15")
+```
+
+### Example 3: Filter from December 20, 2020 to the end of the dataset
+
+```{r}
+toolik_ts %>% 
+  filter_index("2020-12-20" ~ .)
+```
+
+
+## Use `index_by()` to aggregate time series by increments
+
+We will use `index_by()` instead of `group_by()` to do the trick. See `?index_by()` to group by a time index, then `summarize()` to specify what to calculate & return for each interval. 
+
+```{r}
+toolik_month <- toolik_ts %>% 
+  index_by(yr_mo = ~yearmonth(.)) %>% 
+  summarize(monthly_mean_temp = mean(daily_air_temp, na.rm = TRUE)) %>%
+  ungroup() ### just like after group_by()
+```
+
+Now let's take a look: 
+
+```{r}
+ggplot(data = toolik_month, aes(x = yr_mo, y = monthly_mean_temp)) +
+  geom_line() 
+
+### Or break it up by month: 
+toolik_month %>% 
+  ggplot(aes(x = year(yr_mo), y = monthly_mean_temp)) +
+  geom_line() +
+  facet_wrap(~month(yr_mo, label = TRUE)) +
+  labs(x = "Year",
+       y = "Annual mean air temperature (Celsius)",
+       title = "Toolik Station mean annual air temperature",
+       subtitle = "1988 - 2018",
+       caption = "Source: Shaver, G. 2019. A multi-year DAILY weather file
+                  for the Toolik Field Station at Toolik Lake, AK starting
+                  1988 to present. ver 4. Environmental Data Initiative.")
+```
+
+### Other examples of `index_by()` (not run in lab)
+
+Can you do other increments with `index_by()`? Absolutely! **See `?index_by()` for grouping options!**
+
+Let's find the yearly average across the dataset: 
+
+```{r}
+toolik_annual <- toolik_ts %>% 
+  index_by(yearly = ~year(.)) %>% 
+  summarize(annual_airtemp = mean(daily_air_temp, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(data = toolik_annual, aes(x = yearly, y = annual_airtemp)) +
+  geom_line()
+```
+
+And how about a weekly average?
+
+```{r}
+toolik_weekly <- toolik_ts %>% 
+  index_by(weekly = ~yearweek(.)) %>% 
+  summarize(weekly_airtemp = mean(daily_air_temp, na.rm = TRUE))
+
+ggplot(data = toolik_weekly, aes(x = weekly, y = weekly_airtemp)) +
+  geom_line()
+```
+
+## Explore changes in seasonality with seasonplots
+
+Let's look at seasonality over the years with a seasonplot, using the `feasts::gg_season()` function (a wrapper around ggplot). Notice that we can still do wrangling on a `tsibble` like we would with a normal data frame:
+
+```{r}
+toolik_ts %>% 
+  filter(year(date) > 2014) %>% ### another way to filter 
+  gg_season(y = daily_air_temp)
+```
+
+Daily measurements seems a bit excessive to return in this visualization, right? Maybe it makes more sense to use the monthly averages here. 
+
+```{r}
+### Now a season plot: 
+toolik_month %>% 
+  gg_season(y = monthly_mean_temp, pal = hcl.colors(n = 9)) +
+  theme_light() +
+  labs(x = "Year",
+       y = "Mean monthly air temperature (Celsius)",
+       title = "Toolik Station air temperature")
+```
+
+## 5. Seasonal subseries plots
+
+Sometimes it can be useful to explore how values within one season/month/etc. change over time (e.g. across years). 
+
+We can use `gg_subseries()` (another wrapper around ggplot) to explore how values change within a specified window over time. 
+
+Do you notice any trends that differ across the months? 
+
+```{r}
+toolik_month %>% 
+  gg_subseries(monthly_mean_temp)
+```
+
+## Moving averages in tsibbles (not run in lab)
+
+We'll use the `slider` package to find moving (or rolling) averages for different window sizes. 
+
+The general structure will tend to be something like: 
+
+`df %>% slide(variable, function, .before = , .after = )`
+
+Let's make a test vector just so we can see how this works: 
+
+```{r}
+set.seed(2024)
+test<- rnorm(100, mean = 40, sd = 10)
+
+### Show the series based on values +2 and -2 from each observation
+### Use ~.x to show the windows
+w05 <- slide(test, ~.x, .before = 2, .after = 2)
+# w05
+
+### Change that to a function name to actually calculate something for each window
+### Note that I add `as.numeric` here, since the outcome is otherwise a list
+w05 <- as.numeric(slide(test, mean, .before = 2, .after = 2))
+# w05
+
+### Find the mean value of a window with n = 11, centered:
+w11 <- as.numeric(slide(test, mean, .before = 5, .after = 5))
+# w11
+
+### Find the mean value of a window with n = 19, centered:
+w19 <- as.numeric(slide(test, mean, .before = 9, .after = 9))
+# w19
+
+### Plot these together: 
+combo <- data_frame(time = seq(1:100), test, w05, w11, w19) %>%
+  pivot_longer(names_to = 'series', values_to = 'value', -time)
+
+
+ggplot(data = combo) +
+  geom_line(aes(x = time, y = value, color = series)) +
+  scale_color_manual(values = c('grey70', 'red', 'orange', 'purple')) +
+  theme_minimal()
+
+```
+
+
+Now for an example with our Toolik Station data, let's say we want to find the *average* value at each observation, with a window that extends forward and backward n days from the observation:
+
+```{r}
+roll_toolik_15 <- toolik_ts %>% 
+  mutate(ma_15d = as.numeric(slide(toolik_ts$daily_air_temp, mean, 
+                                   .before = 7, .after = 7)))
+
+roll_toolik_61 <- toolik_ts %>% 
+  mutate(ma_61d = as.numeric(slide(toolik_ts$daily_air_temp, mean, 
+                                   .before = 30, .after = 30)))
+
+
+ggplot() +
+  geom_line(data = toolik_ts, aes(x = date, y = daily_air_temp), 
+            size = 0.2, color = "gray") +
+  geom_line(data = roll_toolik_15, aes(x = date, y = ma_15d), 
+            color = "orange") +
+  geom_line(data = roll_toolik_61, aes(x = date, y = ma_61d), 
+            color = "blue") +
+  theme_minimal()
+
+```
+
+## Autocorrelation function
+
+We'll look at outcomes for both daily lags (yikes) and monthly lags (cool).  Note that the date (or yr-month) column are special formats that ACF uses to determine the lag.  `autoplot()` is another wrapper around ggplot to handle certain types of models, depending on which packages you have loaded!
+
+```{r}
+toolik_ts %>%
+  ACF(daily_air_temp) %>%
+  autoplot()
+
+toolik_month %>% 
+  ACF(monthly_mean_temp) %>% 
+  autoplot()
+```
+
+## Decomposition
+
+Here we will use STL decomposition (Seasonal, Trend, and Loess) decomposition. You can read about the advantages of STL decomposition here: https://otexts.com/fpp2/stl.html.
+
+
+```{r}
+toolik_dec <- toolik_month %>%
+  model(STL(monthly_mean_temp ~ trend(window = Inf) + season(period = '1 year')))
+
+components(toolik_dec) %>% autoplot()
+```
+
+## END Part 1
+
+
+
+```{r}
+# Time series packages
+library(tsibble)
+library(feasts)
+library(fable)
+
+```
+
+# Part 0: Lab set-up
+
+- Fork the [lab 9 repo from GitHub](https://github.com/oharac/esm244_w2023_lab9), then clone to create a local version-controlled R Project. The project contains the required data in a `data` subfolder, and the keys in the `keys` subfolder. The keys should be for reference if you get stuck - but it is very important for learning and retention that you try following along **on your own** first, troubleshooting as needed, before you use the key for help. 
+
+- Add a new subfolder (called `my_code` or something) where you'll save your R Markdown documents following along with the instructions below. 
+
+# Part 1: Time series wrangling & forecasting
+
+To reinforce skills for wrangling, visualizing, and forecasting with time series data, we will use data on US residential energy consumption from January 1973 - October 2017 (from the US Energy Information Administration). 
+
+- Dataset: U.S. Residential Energy Consumption (Jan 1973 - Oct 2017)
+- Units: Trillion BTU
+- Source: US Energy Information Administration (data.gov)
+
+### A. Create a new .Rmd
+##
+- Create a new R Markdown document
+- Remove everything below the first code chunk
+- Attach packages: `tidyverse`, `tsibble`, `feasts`, `fable`, `broom`
+- Save the .Rmd in a subfolder you create for your code (you pick the file name)
+
+### B. Read in energy data and convert to a tsibble
+
+Read in the energy.csv data (use `here()`, since it's in the data subfolder).
+
+```{r}
+energy_df <- read_csv(here("data", "energy.csv"))
+```
+
+Explore the `energy` object as it currently exists. Notice that there is a column `month` that contains the month name, and 4-digit year. Currently, however, R understands that as a character (instead of as a date). Our next step is to convert it into a time series data frame (a *tsibble*), in two steps:
+
+1. Add a new column (date) that is the current month column converted to a time series class, yearmonth
+2. Convert the data frame to a tsibble, with that date column as the time index
+
+Here's what that looks like in a piped sequence: 
+
+```{r}
+energy_ts <- energy_df %>% 
+  mutate(date = tsibble::yearmonth(month)) %>% 
+  as_tsibble(key = NULL, index = date)
+
+### NOTE: if after running this, your `date` column DOES NOT MATCH
+### your `month` column, try coercing `month` from <chr> to <date> before
+### passing it to the tsibble::yearmonth() function...
+# energy_ts <- energy_df %>% 
+#   mutate(month_new = lubridate::ym(month)) %>%
+#   mutate(date = tsibble::yearmonth(month_new)) %>% 
+#   as_tsibble(key = NULL, index = date)
+```
+
+Now that it's stored as a tsibble, we can start visualizing, exploring and working with it a bit easier. 
+
+### C. Exploratory time series visualization
+
+#### Raw data graph
+
+Exploratory data visualization is critical no matter what type of data we're working with, including time series data. 
+
+Let's take a quick look at our tsibble (for residential energy use, in trillion BTU): 
+
+```{r}
+ggplot(data = energy_ts, aes(x = date, y = res_total)) +
+  geom_line() +
+  labs(y = "Residential energy consumption \n (Trillion BTU)")
+```
+
+Looks like there are some interesting things happening. We should ask: 
+
+- Is there an overall trend?
+- Is there seasonality?
+- Any cyclicality evident?
+- Any other notable patterns, outliers, etc.?
+
+The big ones to notice quickly here are:
+
+- Overall increasing trend overall, but stability (and possibly a slight decreasing trend) starting around 2005
+- Clear seasonality, with a dominant seasonal feature and also a secondary peak each year - that secondary peak has increased substantially
+- No notable cyclicality or outliers
+
+#### Seasonplot:
+
+A seasonplot can help point out seasonal patterns, and help to glean insights over the years. We'll use `feasts::gg_season()` to create an exploratory seasonplot, which has month on the x-axis, energy consumption on the y-axis, and each year is its own series (mapped by line color).
+
+```{r}
+energy_ts %>% 
+  gg_season(y = res_total) +
+  theme_minimal() +
+  scale_color_viridis_c() +
+  labs(x = "month",
+       y = "residential energy consumption (trillion BTU)")
+  
+```
+
+This is really useful for us to explore both seasonal patterns, and how those seasonal patterns have changed over the years of this data (1973 - 2017). What are the major takeaways from this seasonplot?
+
+- The highest residential energy usage is around December / January / February
+- There is a secondary peak around July & August (that's the repeated secondary peak we see in the original time series graph)
+- We can also see that the prevalence of that second peak has been increasing over the course of the time series: in 1973 (orange) there was hardly any summer peak. In more recent years (blue/magenta) that peak is much more prominent. 
+
+Let's explore the data a couple more ways:
+
+#### Subseries plot: 
+
+```{r}
+energy_ts %>% gg_subseries(res_total)
+```
+
+Our takeaway here is similar: there is clear seasonality (higher values in winter months), with an increasingly evident second peak in June/July/August. This reinforces our takeaways from the raw data and seasonplots. 
+
+#### Decomposition (here by STL)
+
+See Rob Hyndman's section on [STL decomposition](https://otexts.com/fpp2/stl.html) to learn how it compares to classical decomposition we did last week: "STL is a versatile and robust method for decomposing time series. STL is an acronym for “Seasonal and Trend decomposition using Loess”, while Loess is a method for estimating nonlinear relationships." 
+
+Notice that it allows seasonality to vary over time (a major difference from classical decomposition, and important here since we do see changes in seasonality). 
+
+```{r}
+# Find STL decomposition
+dcmp <- energy_ts %>%
+  model(STL(res_total ~ season()))
+
+# View the components
+# components(dcmp)
+
+# Visualize the decomposed components
+components(dcmp) %>% 
+  autoplot() +
+  theme_minimal()
+```
+
+NOTE: those grey bars on the side show relative scale of the total, trend, and seasonality relative to the remainder.  A more clear example - note the residuals span a range of about -.5 to +.5, while the other components span larger variation:
+
+![](autoplot.seas.png)
+
+#### Autocorrelation function (ACF)
+
+We use the ACF to explore autocorrelation (here, we would expect seasonality to be clear from the ACF):
+
+```{r}
+energy_ts %>% 
+  ACF(res_total) %>% 
+  autoplot()
+```
+
+And yep, we see that observations separated by 12 months are the most highly correlated, reflecting strong seasonality we see in all of our other exploratory visualizations. 
+
+### D. Forecasting by Holt-Winters exponential smoothing
+
+Note: here we use ETS, which technically uses different optimization than Holt-Winters exponential smoothing, but is otherwise the same (From [Rob Hyndman](https://stackoverflow.com/questions/60832182/holt-winters-forecast-in-r): "The model is equivalent to the one you are fitting with HoltWinters(), although the parameter estimation in ETS() uses MLE.")
+
+To create the model below, we specify the model type (exponential smoothing, ETS), then tell it what type of seasonality it should assume using the `season("")` expression, where "N" = non-seasonal (try changing it to this to see how unimpressive the forecast becomes!), "A" = additive, "M" = multiplicative. Here, we'll say seasonality is multiplicative due to the change in variance over time and also within the secondary summer peak: 
+
+```{r}
+# Create the model:
+energy_fit <- energy_ts %>%
+  model(
+    ets = ETS(res_total ~ season("M"))
+  )
+
+# Forecast using the model 10 years into the future:
+energy_forecast <- energy_fit %>% 
+  forecast(h = "10 years")
+
+# Plot just the forecasted values (with 80 & 95% CIs):
+energy_forecast %>% 
+  autoplot()
+
+# Or plot it added to the original data:
+energy_forecast %>% 
+  autoplot(energy_ts)
+```
+
+#### Assessing residuals
+
+We can use `broom::augment()` to append our original tsibble with what the model *predicts* the energy usage would be based on the model. Let's do a little exploring through visualization. 
+
+First, use `broom::augment()` to get the predicted values & residuals:
+```{r}
+# Append the predicted values (and residuals) to original energy data
+energy_predicted <- broom::augment(energy_fit)
+
+# Use View(energy_predicted) to see the resulting data frame
+```
+
+Now, plot the actual energy values (res_total), and the predicted values (stored as .fitted) atop them: 
+```{r}
+ggplot(data = energy_predicted) +
+  geom_line(aes(x = date, y = res_total)) +
+  geom_line(aes(x = date, y = .fitted), color = "red", alpha = .7)
+```
+
+Cool, those look like pretty good predictions! 
+
+Now let's explore the **residuals**. Remember, some important considerations: Residuals should be uncorrelated, centered at 0, and ideally normally distributed. One way we can check the distribution is with a histogram:
+
+```{r}
+ggplot(data = energy_predicted, aes(x = .resid)) +
+  geom_histogram()
+```
+We see that this looks relatively normally distributed, and centered at 0 (we could find summary statistics beyond this to further explore). 
+
+**This is the END of what you are expected to complete for Part 1 on time series exploration and forecasting.** Section E, below, shows how to use other forecasting models (seasonal naive and autoregressive integrated moving average, the latter which was not covered in ESM 244 this year).
+
+### E. Other forecasting methods (OPTIONAL SECTION - NOT REQUIRED)
+
+There are a number of other forecasting methods and models! You can learn more about ETS forecasting, seasonal naive (SNAIVE) and autoregressive integrated moving average (ARIMA) from Hyndman's book - those are the models that I show below.
+
+```{r}
+# Fit 3 different forecasting models (ETS, ARIMA, SNAIVE):
+energy_fit_multi <- energy_ts %>%
+  model(
+    ets = ETS(res_total ~ season("M")),
+    arima = ARIMA(res_total),
+    snaive = SNAIVE(res_total)
+  )
+
+# Forecast 3 years into the future (from data end date)
+multi_forecast <- energy_fit_multi %>% 
+  forecast(h = "3 years")
+
+# Plot the 3 forecasts
+multi_forecast %>% 
+  autoplot(energy_ts)
+
+# Or just view the forecasts (note the similarity across models):
+multi_forecast %>% 
+  autoplot()
+```
+
+We can see that all three of these models (exponential smoothing, seasonal naive, and ARIMA) yield similar forecasting results. 
+
+## End Part 1

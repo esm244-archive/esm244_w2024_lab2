@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Casey O’Hara, Nathan Grimes, Allison Horst">
+
+<title>esm244_lab2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="esm244_lab2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="esm244_lab2_files/libs/quarto-html/quarto.js"></script>
+<script src="esm244_lab2_files/libs/quarto-html/popper.min.js"></script>
+<script src="esm244_lab2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="esm244_lab2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="esm244_lab2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="esm244_lab2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="esm244_lab2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="esm244_lab2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="esm244_lab2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#part-1-time-series-with-toolik-lake-data" id="toc-part-1-time-series-with-toolik-lake-data" class="nav-link active" data-scroll-target="#part-1-time-series-with-toolik-lake-data"><span class="header-section-number">1</span> Part 1: Time series with Toolik Lake data</a>
+  <ul class="collapse">
+  <li><a href="#always-look-at-your-data" id="toc-always-look-at-your-data" class="nav-link" data-scroll-target="#always-look-at-your-data"><span class="header-section-number">1.1</span> Always look at your data</a>
+  <ul class="collapse">
+  <li><a href="#read-in-data" id="toc-read-in-data" class="nav-link" data-scroll-target="#read-in-data"><span class="header-section-number">1.1.1</span> Read in data:</a></li>
+  <li><a href="#convert-the-data-frame-to-a-tsibble" id="toc-convert-the-data-frame-to-a-tsibble" class="nav-link" data-scroll-target="#convert-the-data-frame-to-a-tsibble"><span class="header-section-number">1.1.2</span> Convert the data frame to a tsibble</a></li>
+  </ul></li>
+  <li><a href="#use-filter_index-to-filter-by-date-times" id="toc-use-filter_index-to-filter-by-date-times" class="nav-link" data-scroll-target="#use-filter_index-to-filter-by-date-times"><span class="header-section-number">1.2</span> Use <code>filter_index()</code> to filter by date-times!</a>
+  <ul class="collapse">
+  <li><a href="#example-1-filter-from-december-2010-through-january-2011" id="toc-example-1-filter-from-december-2010-through-january-2011" class="nav-link" data-scroll-target="#example-1-filter-from-december-2010-through-january-2011"><span class="header-section-number">1.2.1</span> Example 1: Filter from December 2010 through January 2011</a></li>
+  <li><a href="#example-2-filter-from-april-10-2006-to-may-15-2006" id="toc-example-2-filter-from-april-10-2006-to-may-15-2006" class="nav-link" data-scroll-target="#example-2-filter-from-april-10-2006-to-may-15-2006"><span class="header-section-number">1.2.2</span> Example 2: Filter from April 10, 2006 to May 15, 2006</a></li>
+  <li><a href="#example-3-filter-from-december-20-2020-to-the-end-of-the-dataset" id="toc-example-3-filter-from-december-20-2020-to-the-end-of-the-dataset" class="nav-link" data-scroll-target="#example-3-filter-from-december-20-2020-to-the-end-of-the-dataset"><span class="header-section-number">1.2.3</span> Example 3: Filter from December 20, 2020 to the end of the dataset</a></li>
+  </ul></li>
+  <li><a href="#use-index_by-to-aggregate-time-series-by-increments" id="toc-use-index_by-to-aggregate-time-series-by-increments" class="nav-link" data-scroll-target="#use-index_by-to-aggregate-time-series-by-increments"><span class="header-section-number">1.3</span> Use <code>index_by()</code> to aggregate time series by increments</a>
+  <ul class="collapse">
+  <li><a href="#other-examples-of-index_by-not-run-in-lab" id="toc-other-examples-of-index_by-not-run-in-lab" class="nav-link" data-scroll-target="#other-examples-of-index_by-not-run-in-lab"><span class="header-section-number">1.3.1</span> Other examples of <code>index_by()</code> (not run in lab)</a></li>
+  </ul></li>
+  <li><a href="#explore-changes-in-seasonality-with-seasonplots" id="toc-explore-changes-in-seasonality-with-seasonplots" class="nav-link" data-scroll-target="#explore-changes-in-seasonality-with-seasonplots"><span class="header-section-number">1.4</span> Explore changes in seasonality with seasonplots</a></li>
+  <li><a href="#seasonal-subseries-plots" id="toc-seasonal-subseries-plots" class="nav-link" data-scroll-target="#seasonal-subseries-plots"><span class="header-section-number">1.5</span> 5. Seasonal subseries plots</a></li>
+  <li><a href="#moving-averages-in-tsibbles-not-run-in-lab" id="toc-moving-averages-in-tsibbles-not-run-in-lab" class="nav-link" data-scroll-target="#moving-averages-in-tsibbles-not-run-in-lab"><span class="header-section-number">1.6</span> Moving averages in tsibbles (not run in lab)</a></li>
+  <li><a href="#autocorrelation-function" id="toc-autocorrelation-function" class="nav-link" data-scroll-target="#autocorrelation-function"><span class="header-section-number">1.7</span> Autocorrelation function</a></li>
+  <li><a href="#decomposition" id="toc-decomposition" class="nav-link" data-scroll-target="#decomposition"><span class="header-section-number">1.8</span> Decomposition</a></li>
+  <li><a href="#end-part-1" id="toc-end-part-1" class="nav-link" data-scroll-target="#end-part-1"><span class="header-section-number">1.9</span> END Part 1</a></li>
+  </ul></li>
+  <li><a href="#part-0-lab-set-up" id="toc-part-0-lab-set-up" class="nav-link" data-scroll-target="#part-0-lab-set-up"><span class="header-section-number">2</span> Part 0: Lab set-up</a></li>
+  <li><a href="#part-1-time-series-wrangling-forecasting" id="toc-part-1-time-series-wrangling-forecasting" class="nav-link" data-scroll-target="#part-1-time-series-wrangling-forecasting"><span class="header-section-number">3</span> Part 1: Time series wrangling &amp; forecasting</a>
+  <ul class="collapse">
+  <li><a href="#a.-create-a-new-.rmd" id="toc-a.-create-a-new-.rmd" class="nav-link" data-scroll-target="#a.-create-a-new-.rmd"><span class="header-section-number">3.0.1</span> A. Create a new .Rmd</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"><span class="header-section-number">3.1</span> </a>
+  <ul class="collapse">
+  <li><a href="#b.-read-in-energy-data-and-convert-to-a-tsibble" id="toc-b.-read-in-energy-data-and-convert-to-a-tsibble" class="nav-link" data-scroll-target="#b.-read-in-energy-data-and-convert-to-a-tsibble"><span class="header-section-number">3.1.1</span> B. Read in energy data and convert to a tsibble</a></li>
+  <li><a href="#c.-exploratory-time-series-visualization" id="toc-c.-exploratory-time-series-visualization" class="nav-link" data-scroll-target="#c.-exploratory-time-series-visualization"><span class="header-section-number">3.1.2</span> C. Exploratory time series visualization</a></li>
+  <li><a href="#d.-forecasting-by-holt-winters-exponential-smoothing" id="toc-d.-forecasting-by-holt-winters-exponential-smoothing" class="nav-link" data-scroll-target="#d.-forecasting-by-holt-winters-exponential-smoothing"><span class="header-section-number">3.1.3</span> D. Forecasting by Holt-Winters exponential smoothing</a></li>
+  <li><a href="#e.-other-forecasting-methods-optional-section---not-required" id="toc-e.-other-forecasting-methods-optional-section---not-required" class="nav-link" data-scroll-target="#e.-other-forecasting-methods-optional-section---not-required"><span class="header-section-number">3.1.4</span> E. Other forecasting methods (OPTIONAL SECTION - NOT REQUIRED)</a></li>
+  </ul></li>
+  <li><a href="#end-part-1-1" id="toc-end-part-1-1" class="nav-link" data-scroll-target="#end-part-1-1"><span class="header-section-number">3.2</span> End Part 1</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">esm244_lab2</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Casey O’Hara, Nathan Grimes, Allison Horst </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tsibble)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(feasts)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(slider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="part-1-time-series-with-toolik-lake-data" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Part 1: Time series with Toolik Lake data</h1>
+<section id="always-look-at-your-data" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="always-look-at-your-data"><span class="header-section-number">1.1</span> Always look at your data</h2>
+<p>Toolik Station (LTER) meteorological data (Source: Source: Shaver, G. 2019. A multi-year DAILY file for the Toolik Field Station at Toolik Lake, AK starting 1988 to present. ver 4. Environmental Data Initiative.) See the <a href="https://www.uaf.edu/toolik/edc/index.php">Toolik Field Station Environmental Data Center</a> site for more details. This dataset has been modified for purposes of this lab (see code below if you are interested!).</p>
+<section id="read-in-data" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="read-in-data"><span class="header-section-number">1.1.1</span> Read in data:</h3>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>toolik <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"toolik_daily.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Notice that (in this case, with the date formatted in the .csv) the date parsed (assumed class) as <em>character.</em> That limits the nice time series features we can use, so we’ll quickly convert it into a <code>tsibble</code> (a time series data frame) so that we can use functions in <code>feasts</code> and <code>fable</code> to explore &amp; analyze it.</p>
+<p>Go ahead and try plotting the data as imported.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> toolik, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> daily_air_temp)) <span class="sc">+</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">### Booo we get a warning (only one observation per series)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Notice that it doesn’t work - because R doesn’t understand the date is a <em>date</em> until we tell it.</p>
+</section>
+<section id="convert-the-data-frame-to-a-tsibble" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="convert-the-data-frame-to-a-tsibble"><span class="header-section-number">1.1.2</span> Convert the data frame to a tsibble</h3>
+<p>Let’s go ahead and convert it to a tsibble using the <code>as_tsibble()</code> function. First, we’ll need to convert the date to a <code>date</code> class, <em>then</em> convert to a tsibble. We could just keep it as a regular dataframe with a date column and do a lot with that, but the tsibble package gives lots of functionality around time series (thus the <code>ts</code> at the start).</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="ot">&lt;-</span> toolik <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> lubridate<span class="sc">::</span><span class="fu">mdy</span>(date)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tsibble</span>(<span class="at">key =</span> <span class="cn">NULL</span>, <span class="do">### if we had multiple obs on same date from diff locations</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">index =</span> date) <span class="do">### time index, here our column is `date`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now let’s plot it:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> toolik_ts, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> daily_air_temp)) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Date"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Mean daily air temperature (Celsius)</span><span class="sc">\n</span><span class="st"> at Toolik Station"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We need to ask some big picture questions at this point, like:</p>
+<ul>
+<li>Does there appear to be an overall trend? No.</li>
+<li>Does there appear to be seasonality? Yes.</li>
+<li>Does there appear to be cyclicality? Unsure.</li>
+<li>Any notable outliers or additional patterns? No noted.</li>
+</ul>
+</section>
+</section>
+<section id="use-filter_index-to-filter-by-date-times" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="use-filter_index-to-filter-by-date-times"><span class="header-section-number">1.2</span> Use <code>filter_index()</code> to filter by date-times!</h2>
+<p>We can use <code>filter_index()</code> specifically to help us filter data by time spans. See <code>?filter_index()</code> for more information.</p>
+<section id="example-1-filter-from-december-2010-through-january-2011" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="example-1-filter-from-december-2010-through-january-2011"><span class="header-section-number">1.2.1</span> Example 1: Filter from December 2010 through January 2011</h3>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_index</span>(<span class="st">"2010-12"</span> <span class="sc">~</span> <span class="st">"2011-01"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 62 x 5 [1D]
+   date       daily_air_temp daily_precip mean_barom mean_windspeed
+   &lt;date&gt;              &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
+ 1 2010-12-01          -21.8          0.5       928.           4.23
+ 2 2010-12-02          -23.4          0.3       927.           2.36
+ 3 2010-12-03          -17.9          0.2       921.           2.63
+ 4 2010-12-04          -24.0          1.7       919.           3.70
+ 5 2010-12-05          -31.7          0         936.           2.39
+ 6 2010-12-06          -23.5          0         940.           3.07
+ 7 2010-12-07          -21.3          0         936.           3.50
+ 8 2010-12-08          -22.1          0         932.           3.77
+ 9 2010-12-09          -18.7          2.2       930.           3.35
+10 2010-12-10          -26.0          0.4       929.           3.37
+# ℹ 52 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="example-2-filter-from-april-10-2006-to-may-15-2006" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="example-2-filter-from-april-10-2006-to-may-15-2006"><span class="header-section-number">1.2.2</span> Example 2: Filter from April 10, 2006 to May 15, 2006</h3>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_index</span>(<span class="st">"2006-04-10"</span> <span class="sc">~</span> <span class="st">"2006-05-15"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 36 x 5 [1D]
+   date       daily_air_temp daily_precip mean_barom mean_windspeed
+   &lt;date&gt;              &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
+ 1 2006-04-10          -18.6           NA         NA             NA
+ 2 2006-04-11          -13.6           NA         NA             NA
+ 3 2006-04-12          -22.5           NA         NA             NA
+ 4 2006-04-13          -24.0           NA         NA             NA
+ 5 2006-04-14          -24.6           NA         NA             NA
+ 6 2006-04-15          -22.2           NA         NA             NA
+ 7 2006-04-16          -19.6           NA         NA             NA
+ 8 2006-04-17          -25.0           NA         NA             NA
+ 9 2006-04-18          -21.9           NA         NA             NA
+10 2006-04-19          -26.2           NA         NA             NA
+# ℹ 26 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="example-3-filter-from-december-20-2020-to-the-end-of-the-dataset" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="example-3-filter-from-december-20-2020-to-the-end-of-the-dataset"><span class="header-section-number">1.2.3</span> Example 3: Filter from December 20, 2020 to the end of the dataset</h3>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_index</span>(<span class="st">"2020-12-20"</span> <span class="sc">~</span> .)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 742 x 5 [1D]
+   date       daily_air_temp daily_precip mean_barom mean_windspeed
+   &lt;date&gt;              &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
+ 1 2020-12-20         -39.0           0         909.          0.652
+ 2 2020-12-21         -26.2           0.2       912.          2.25 
+ 3 2020-12-22          -7.97          1.5       908.          6.33 
+ 4 2020-12-23          -6.79          2.2       901.          2.49 
+ 5 2020-12-24          -7.44          0.7       913.          4.51 
+ 6 2020-12-25          -8.26          0         918.          3.01 
+ 7 2020-12-26         -21.4           0.1       917.          1.59 
+ 8 2020-12-27         -20.4           0         916.          1.11 
+ 9 2020-12-28         -15.0           0.3       916.          1.20 
+10 2020-12-29         -16.0           0.1       920.          1.22 
+# ℹ 732 more rows</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="use-index_by-to-aggregate-time-series-by-increments" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="use-index_by-to-aggregate-time-series-by-increments"><span class="header-section-number">1.3</span> Use <code>index_by()</code> to aggregate time series by increments</h2>
+<p>We will use <code>index_by()</code> instead of <code>group_by()</code> to do the trick. See <code>?index_by()</code> to group by a time index, then <code>summarize()</code> to specify what to calculate &amp; return for each interval.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>toolik_month <span class="ot">&lt;-</span> toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">yr_mo =</span> <span class="sc">~</span><span class="fu">yearmonth</span>(.)) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">monthly_mean_temp =</span> <span class="fu">mean</span>(daily_air_temp, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="do">### just like after group_by()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now let’s take a look:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> toolik_month, <span class="fu">aes</span>(<span class="at">x =</span> yr_mo, <span class="at">y =</span> monthly_mean_temp)) <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Or break it up by month: </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>toolik_month <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">year</span>(yr_mo), <span class="at">y =</span> monthly_mean_temp)) <span class="sc">+</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span><span class="fu">month</span>(yr_mo, <span class="at">label =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Annual mean air temperature (Celsius)"</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Toolik Station mean annual air temperature"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"1988 - 2018"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Source: Shaver, G. 2019. A multi-year DAILY weather file</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="st">                  for the Toolik Field Station at Toolik Lake, AK starting</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="st">                  1988 to present. ver 4. Environmental Data Initiative."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="other-examples-of-index_by-not-run-in-lab" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="other-examples-of-index_by-not-run-in-lab"><span class="header-section-number">1.3.1</span> Other examples of <code>index_by()</code> (not run in lab)</h3>
+<p>Can you do other increments with <code>index_by()</code>? Absolutely! <strong>See <code>?index_by()</code> for grouping options!</strong></p>
+<p>Let’s find the yearly average across the dataset:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>toolik_annual <span class="ot">&lt;-</span> toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">yearly =</span> <span class="sc">~</span><span class="fu">year</span>(.)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">annual_airtemp =</span> <span class="fu">mean</span>(daily_air_temp, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> toolik_annual, <span class="fu">aes</span>(<span class="at">x =</span> yearly, <span class="at">y =</span> annual_airtemp)) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And how about a weekly average?</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>toolik_weekly <span class="ot">&lt;-</span> toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">weekly =</span> <span class="sc">~</span><span class="fu">yearweek</span>(.)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">weekly_airtemp =</span> <span class="fu">mean</span>(daily_air_temp, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> toolik_weekly, <span class="fu">aes</span>(<span class="at">x =</span> weekly, <span class="at">y =</span> weekly_airtemp)) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="explore-changes-in-seasonality-with-seasonplots" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="explore-changes-in-seasonality-with-seasonplots"><span class="header-section-number">1.4</span> Explore changes in seasonality with seasonplots</h2>
+<p>Let’s look at seasonality over the years with a seasonplot, using the <code>feasts::gg_season()</code> function (a wrapper around ggplot). Notice that we can still do wrangling on a <code>tsibble</code> like we would with a normal data frame:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">year</span>(date) <span class="sc">&gt;</span> <span class="dv">2014</span>) <span class="sc">%&gt;%</span> <span class="do">### another way to filter </span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_season</span>(<span class="at">y =</span> daily_air_temp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Daily measurements seems a bit excessive to return in this visualization, right? Maybe it makes more sense to use the monthly averages here.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Now a season plot: </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>toolik_month <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_season</span>(<span class="at">y =</span> monthly_mean_temp, <span class="at">pal =</span> <span class="fu">hcl.colors</span>(<span class="at">n =</span> <span class="dv">9</span>)) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Mean monthly air temperature (Celsius)"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Toolik Station air temperature"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="seasonal-subseries-plots" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="seasonal-subseries-plots"><span class="header-section-number">1.5</span> 5. Seasonal subseries plots</h2>
+<p>Sometimes it can be useful to explore how values within one season/month/etc. change over time (e.g.&nbsp;across years).</p>
+<p>We can use <code>gg_subseries()</code> (another wrapper around ggplot) to explore how values change within a specified window over time.</p>
+<p>Do you notice any trends that differ across the months?</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>toolik_month <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_subseries</span>(monthly_mean_temp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="moving-averages-in-tsibbles-not-run-in-lab" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="moving-averages-in-tsibbles-not-run-in-lab"><span class="header-section-number">1.6</span> Moving averages in tsibbles (not run in lab)</h2>
+<p>We’ll use the <code>slider</code> package to find moving (or rolling) averages for different window sizes.</p>
+<p>The general structure will tend to be something like:</p>
+<p><code>df %&gt;% slide(variable, function, .before = , .after = )</code></p>
+<p>Let’s make a test vector just so we can see how this works:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>test<span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="at">mean =</span> <span class="dv">40</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="do">### Show the series based on values +2 and -2 from each observation</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="do">### Use ~.x to show the windows</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>w05 <span class="ot">&lt;-</span> <span class="fu">slide</span>(test, <span class="sc">~</span>.x, <span class="at">.before =</span> <span class="dv">2</span>, <span class="at">.after =</span> <span class="dv">2</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># w05</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="do">### Change that to a function name to actually calculate something for each window</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="do">### Note that I add `as.numeric` here, since the outcome is otherwise a list</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>w05 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">slide</span>(test, mean, <span class="at">.before =</span> <span class="dv">2</span>, <span class="at">.after =</span> <span class="dv">2</span>))</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co"># w05</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="do">### Find the mean value of a window with n = 11, centered:</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>w11 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">slide</span>(test, mean, <span class="at">.before =</span> <span class="dv">5</span>, <span class="at">.after =</span> <span class="dv">5</span>))</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co"># w11</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="do">### Find the mean value of a window with n = 19, centered:</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>w19 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">slide</span>(test, mean, <span class="at">.before =</span> <span class="dv">9</span>, <span class="at">.after =</span> <span class="dv">9</span>))</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="co"># w19</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot these together: </span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>combo <span class="ot">&lt;-</span> <span class="fu">data_frame</span>(<span class="at">time =</span> <span class="fu">seq</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>), test, w05, w11, w19) <span class="sc">%&gt;%</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">names_to =</span> <span class="st">'series'</span>, <span class="at">values_to =</span> <span class="st">'value'</span>, <span class="sc">-</span>time)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> combo) <span class="sc">+</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> value, <span class="at">color =</span> series)) <span class="sc">+</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">'grey70'</span>, <span class="st">'red'</span>, <span class="st">'orange'</span>, <span class="st">'purple'</span>)) <span class="sc">+</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now for an example with our Toolik Station data, let’s say we want to find the <em>average</em> value at each observation, with a window that extends forward and backward n days from the observation:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>roll_toolik_15 <span class="ot">&lt;-</span> toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ma_15d =</span> <span class="fu">as.numeric</span>(<span class="fu">slide</span>(toolik_ts<span class="sc">$</span>daily_air_temp, mean, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">.before =</span> <span class="dv">7</span>, <span class="at">.after =</span> <span class="dv">7</span>)))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>roll_toolik_61 <span class="ot">&lt;-</span> toolik_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ma_61d =</span> <span class="fu">as.numeric</span>(<span class="fu">slide</span>(toolik_ts<span class="sc">$</span>daily_air_temp, mean, </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">.before =</span> <span class="dv">30</span>, <span class="at">.after =</span> <span class="dv">30</span>)))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> toolik_ts, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> daily_air_temp), </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> roll_toolik_15, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> ma_15d), </span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> roll_toolik_61, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> ma_61d), </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="autocorrelation-function" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="autocorrelation-function"><span class="header-section-number">1.7</span> Autocorrelation function</h2>
+<p>We’ll look at outcomes for both daily lags (yikes) and monthly lags (cool). Note that the date (or yr-month) column are special formats that ACF uses to determine the lag. <code>autoplot()</code> is another wrapper around ggplot to handle certain types of models, depending on which packages you have loaded!</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>toolik_ts <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ACF</span>(daily_air_temp) <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>toolik_month <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ACF</span>(monthly_mean_temp) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="decomposition" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="decomposition"><span class="header-section-number">1.8</span> Decomposition</h2>
+<p>Here we will use STL decomposition (Seasonal, Trend, and Loess) decomposition. You can read about the advantages of STL decomposition here: https://otexts.com/fpp2/stl.html.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>toolik_dec <span class="ot">&lt;-</span> toolik_month <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(<span class="fu">STL</span>(monthly_mean_temp <span class="sc">~</span> <span class="fu">trend</span>(<span class="at">window =</span> <span class="cn">Inf</span>) <span class="sc">+</span> <span class="fu">season</span>(<span class="at">period =</span> <span class="st">'1 year'</span>)))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">components</span>(toolik_dec) <span class="sc">%&gt;%</span> <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="end-part-1" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="end-part-1"><span class="header-section-number">1.9</span> END Part 1</h2>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Time series packages</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tsibble)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(feasts)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="part-0-lab-set-up" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Part 0: Lab set-up</h1>
+<ul>
+<li><p>Fork the <a href="https://github.com/oharac/esm244_w2023_lab9">lab 9 repo from GitHub</a>, then clone to create a local version-controlled R Project. The project contains the required data in a <code>data</code> subfolder, and the keys in the <code>keys</code> subfolder. The keys should be for reference if you get stuck - but it is very important for learning and retention that you try following along <strong>on your own</strong> first, troubleshooting as needed, before you use the key for help.</p></li>
+<li><p>Add a new subfolder (called <code>my_code</code> or something) where you’ll save your R Markdown documents following along with the instructions below.</p></li>
+</ul>
+</section>
+<section id="part-1-time-series-wrangling-forecasting" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Part 1: Time series wrangling &amp; forecasting</h1>
+<p>To reinforce skills for wrangling, visualizing, and forecasting with time series data, we will use data on US residential energy consumption from January 1973 - October 2017 (from the US Energy Information Administration).</p>
+<ul>
+<li>Dataset: U.S. Residential Energy Consumption (Jan 1973 - Oct 2017)</li>
+<li>Units: Trillion BTU</li>
+<li>Source: US Energy Information Administration (data.gov)</li>
+</ul>
+<section id="a.-create-a-new-.rmd" class="level3" data-number="3.0.1">
+<h3 data-number="3.0.1" class="anchored" data-anchor-id="a.-create-a-new-.rmd"><span class="header-section-number">3.0.1</span> A. Create a new .Rmd</h3>
+</section>
+<section id="section" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="section"><span class="header-section-number">3.1</span> </h2>
+<ul>
+<li>Create a new R Markdown document</li>
+<li>Remove everything below the first code chunk</li>
+<li>Attach packages: <code>tidyverse</code>, <code>tsibble</code>, <code>feasts</code>, <code>fable</code>, <code>broom</code></li>
+<li>Save the .Rmd in a subfolder you create for your code (you pick the file name)</li>
+</ul>
+<section id="b.-read-in-energy-data-and-convert-to-a-tsibble" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="b.-read-in-energy-data-and-convert-to-a-tsibble"><span class="header-section-number">3.1.1</span> B. Read in energy data and convert to a tsibble</h3>
+<p>Read in the energy.csv data (use <code>here()</code>, since it’s in the data subfolder).</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>energy_df <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"energy.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Explore the <code>energy</code> object as it currently exists. Notice that there is a column <code>month</code> that contains the month name, and 4-digit year. Currently, however, R understands that as a character (instead of as a date). Our next step is to convert it into a time series data frame (a <em>tsibble</em>), in two steps:</p>
+<ol type="1">
+<li>Add a new column (date) that is the current month column converted to a time series class, yearmonth</li>
+<li>Convert the data frame to a tsibble, with that date column as the time index</li>
+</ol>
+<p>Here’s what that looks like in a piped sequence:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>energy_ts <span class="ot">&lt;-</span> energy_df <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> tsibble<span class="sc">::</span><span class="fu">yearmonth</span>(month)) <span class="sc">%&gt;%</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tsibble</span>(<span class="at">key =</span> <span class="cn">NULL</span>, <span class="at">index =</span> date)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="do">### </span><span class="al">NOTE</span><span class="do">: if after running this, your `date` column DOES NOT MATCH</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="do">### your `month` column, try coercing `month` from &lt;chr&gt; to &lt;date&gt; before</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="do">### passing it to the tsibble::yearmonth() function...</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># energy_ts &lt;- energy_df %&gt;% </span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(month_new = lubridate::ym(month)) %&gt;%</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(date = tsibble::yearmonth(month_new)) %&gt;% </span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   as_tsibble(key = NULL, index = date)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now that it’s stored as a tsibble, we can start visualizing, exploring and working with it a bit easier.</p>
+</section>
+<section id="c.-exploratory-time-series-visualization" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="c.-exploratory-time-series-visualization"><span class="header-section-number">3.1.2</span> C. Exploratory time series visualization</h3>
+<section id="raw-data-graph" class="level4" data-number="3.1.2.1">
+<h4 data-number="3.1.2.1" class="anchored" data-anchor-id="raw-data-graph"><span class="header-section-number">3.1.2.1</span> Raw data graph</h4>
+<p>Exploratory data visualization is critical no matter what type of data we’re working with, including time series data.</p>
+<p>Let’s take a quick look at our tsibble (for residential energy use, in trillion BTU):</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> energy_ts, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> res_total)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Residential energy consumption </span><span class="sc">\n</span><span class="st"> (Trillion BTU)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Looks like there are some interesting things happening. We should ask:</p>
+<ul>
+<li>Is there an overall trend?</li>
+<li>Is there seasonality?</li>
+<li>Any cyclicality evident?</li>
+<li>Any other notable patterns, outliers, etc.?</li>
+</ul>
+<p>The big ones to notice quickly here are:</p>
+<ul>
+<li>Overall increasing trend overall, but stability (and possibly a slight decreasing trend) starting around 2005</li>
+<li>Clear seasonality, with a dominant seasonal feature and also a secondary peak each year - that secondary peak has increased substantially</li>
+<li>No notable cyclicality or outliers</li>
+</ul>
+</section>
+<section id="seasonplot" class="level4" data-number="3.1.2.2">
+<h4 data-number="3.1.2.2" class="anchored" data-anchor-id="seasonplot"><span class="header-section-number">3.1.2.2</span> Seasonplot:</h4>
+<p>A seasonplot can help point out seasonal patterns, and help to glean insights over the years. We’ll use <code>feasts::gg_season()</code> to create an exploratory seasonplot, which has month on the x-axis, energy consumption on the y-axis, and each year is its own series (mapped by line color).</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>energy_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_season</span>(<span class="at">y =</span> res_total) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_c</span>() <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"month"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"residential energy consumption (trillion BTU)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is really useful for us to explore both seasonal patterns, and how those seasonal patterns have changed over the years of this data (1973 - 2017). What are the major takeaways from this seasonplot?</p>
+<ul>
+<li>The highest residential energy usage is around December / January / February</li>
+<li>There is a secondary peak around July &amp; August (that’s the repeated secondary peak we see in the original time series graph)</li>
+<li>We can also see that the prevalence of that second peak has been increasing over the course of the time series: in 1973 (orange) there was hardly any summer peak. In more recent years (blue/magenta) that peak is much more prominent.</li>
+</ul>
+<p>Let’s explore the data a couple more ways:</p>
+</section>
+<section id="subseries-plot" class="level4" data-number="3.1.2.3">
+<h4 data-number="3.1.2.3" class="anchored" data-anchor-id="subseries-plot"><span class="header-section-number">3.1.2.3</span> Subseries plot:</h4>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>energy_ts <span class="sc">%&gt;%</span> <span class="fu">gg_subseries</span>(res_total)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Our takeaway here is similar: there is clear seasonality (higher values in winter months), with an increasingly evident second peak in June/July/August. This reinforces our takeaways from the raw data and seasonplots.</p>
+</section>
+<section id="decomposition-here-by-stl" class="level4" data-number="3.1.2.4">
+<h4 data-number="3.1.2.4" class="anchored" data-anchor-id="decomposition-here-by-stl"><span class="header-section-number">3.1.2.4</span> Decomposition (here by STL)</h4>
+<p>See Rob Hyndman’s section on <a href="https://otexts.com/fpp2/stl.html">STL decomposition</a> to learn how it compares to classical decomposition we did last week: “STL is a versatile and robust method for decomposing time series. STL is an acronym for “Seasonal and Trend decomposition using Loess”, while Loess is a method for estimating nonlinear relationships.”</p>
+<p>Notice that it allows seasonality to vary over time (a major difference from classical decomposition, and important here since we do see changes in seasonality).</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find STL decomposition</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>dcmp <span class="ot">&lt;-</span> energy_ts <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(<span class="fu">STL</span>(res_total <span class="sc">~</span> <span class="fu">season</span>()))</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># View the components</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co"># components(dcmp)</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the decomposed components</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">components</span>(dcmp) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>() <span class="sc">+</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>NOTE: those grey bars on the side show relative scale of the total, trend, and seasonality relative to the remainder. A more clear example - note the residuals span a range of about -.5 to +.5, while the other components span larger variation:</p>
+<p><img src="autoplot.seas.png" class="img-fluid"></p>
+</section>
+<section id="autocorrelation-function-acf" class="level4" data-number="3.1.2.5">
+<h4 data-number="3.1.2.5" class="anchored" data-anchor-id="autocorrelation-function-acf"><span class="header-section-number">3.1.2.5</span> Autocorrelation function (ACF)</h4>
+<p>We use the ACF to explore autocorrelation (here, we would expect seasonality to be clear from the ACF):</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>energy_ts <span class="sc">%&gt;%</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ACF</span>(res_total) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And yep, we see that observations separated by 12 months are the most highly correlated, reflecting strong seasonality we see in all of our other exploratory visualizations.</p>
+</section>
+</section>
+<section id="d.-forecasting-by-holt-winters-exponential-smoothing" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="d.-forecasting-by-holt-winters-exponential-smoothing"><span class="header-section-number">3.1.3</span> D. Forecasting by Holt-Winters exponential smoothing</h3>
+<p>Note: here we use ETS, which technically uses different optimization than Holt-Winters exponential smoothing, but is otherwise the same (From <a href="https://stackoverflow.com/questions/60832182/holt-winters-forecast-in-r">Rob Hyndman</a>: “The model is equivalent to the one you are fitting with HoltWinters(), although the parameter estimation in ETS() uses MLE.”)</p>
+<p>To create the model below, we specify the model type (exponential smoothing, ETS), then tell it what type of seasonality it should assume using the <code>season("")</code> expression, where “N” = non-seasonal (try changing it to this to see how unimpressive the forecast becomes!), “A” = additive, “M” = multiplicative. Here, we’ll say seasonality is multiplicative due to the change in variance over time and also within the secondary summer peak:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the model:</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>energy_fit <span class="ot">&lt;-</span> energy_ts <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ets =</span> <span class="fu">ETS</span>(res_total <span class="sc">~</span> <span class="fu">season</span>(<span class="st">"M"</span>))</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Forecast using the model 10 years into the future:</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>energy_forecast <span class="ot">&lt;-</span> energy_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">forecast</span>(<span class="at">h =</span> <span class="st">"10 years"</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot just the forecasted values (with 80 &amp; 95% CIs):</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>energy_forecast <span class="sc">%&gt;%</span> </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Or plot it added to the original data:</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>energy_forecast <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(energy_ts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-27-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="assessing-residuals" class="level4" data-number="3.1.3.1">
+<h4 data-number="3.1.3.1" class="anchored" data-anchor-id="assessing-residuals"><span class="header-section-number">3.1.3.1</span> Assessing residuals</h4>
+<p>We can use <code>broom::augment()</code> to append our original tsibble with what the model <em>predicts</em> the energy usage would be based on the model. Let’s do a little exploring through visualization.</p>
+<p>First, use <code>broom::augment()</code> to get the predicted values &amp; residuals:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Append the predicted values (and residuals) to original energy data</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>energy_predicted <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">augment</span>(energy_fit)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Use View(energy_predicted) to see the resulting data frame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now, plot the actual energy values (res_total), and the predicted values (stored as .fitted) atop them:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> energy_predicted) <span class="sc">+</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> res_total)) <span class="sc">+</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> .fitted), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> .<span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Cool, those look like pretty good predictions!</p>
+<p>Now let’s explore the <strong>residuals</strong>. Remember, some important considerations: Residuals should be uncorrelated, centered at 0, and ideally normally distributed. One way we can check the distribution is with a histogram:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> energy_predicted, <span class="fu">aes</span>(<span class="at">x =</span> .resid)) <span class="sc">+</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that this looks relatively normally distributed, and centered at 0 (we could find summary statistics beyond this to further explore).</p>
+<p><strong>This is the END of what you are expected to complete for Part 1 on time series exploration and forecasting.</strong> Section E, below, shows how to use other forecasting models (seasonal naive and autoregressive integrated moving average, the latter which was not covered in ESM 244 this year).</p>
+</section>
+</section>
+<section id="e.-other-forecasting-methods-optional-section---not-required" class="level3" data-number="3.1.4">
+<h3 data-number="3.1.4" class="anchored" data-anchor-id="e.-other-forecasting-methods-optional-section---not-required"><span class="header-section-number">3.1.4</span> E. Other forecasting methods (OPTIONAL SECTION - NOT REQUIRED)</h3>
+<p>There are a number of other forecasting methods and models! You can learn more about ETS forecasting, seasonal naive (SNAIVE) and autoregressive integrated moving average (ARIMA) from Hyndman’s book - those are the models that I show below.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit 3 different forecasting models (ETS, ARIMA, SNAIVE):</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>energy_fit_multi <span class="ot">&lt;-</span> energy_ts <span class="sc">%&gt;%</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ets =</span> <span class="fu">ETS</span>(res_total <span class="sc">~</span> <span class="fu">season</span>(<span class="st">"M"</span>)),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">arima =</span> <span class="fu">ARIMA</span>(res_total),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">snaive =</span> <span class="fu">SNAIVE</span>(res_total)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Forecast 3 years into the future (from data end date)</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>multi_forecast <span class="ot">&lt;-</span> energy_fit_multi <span class="sc">%&gt;%</span> </span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">forecast</span>(<span class="at">h =</span> <span class="st">"3 years"</span>)</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the 3 forecasts</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>multi_forecast <span class="sc">%&gt;%</span> </span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(energy_ts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Or just view the forecasts (note the similarity across models):</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>multi_forecast <span class="sc">%&gt;%</span> </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="esm244_lab2_files/figure-html/unnamed-chunk-31-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see that all three of these models (exponential smoothing, seasonal naive, and ARIMA) yield similar forecasting results.</p>
+</section>
+</section>
+<section id="end-part-1-1" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="end-part-1-1"><span class="header-section-number">3.2</span> End Part 1</h2>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
