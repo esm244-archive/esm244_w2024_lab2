@@ -299,9 +299,14 @@ energy_df <- read_csv(here("data", "energy.csv"))
 ### Analysis goal:
 
 -   Examine patterns and trends in residential energy consumption over time
--   Predict where residential energy use patterns will be five years from now
+-   Predict what residential energy use patterns will look like five years from now
 
 ### Pseudocode
+
+
+
+
+
 
 ### Wrangle data into a time series format
 
@@ -377,7 +382,7 @@ Our takeaway here is similar: there is clear seasonality (higher values in winte
 
 ## Decomposition (here by STL)
 
-See Rob Hyndman's section on [STL decomposition](https://otexts.com/fpp2/stl.html) to learn how it compares to classical decomposition we saw in lecture: "STL is a versatile and robust method for decomposing time series. STL is an acronym for “Seasonal and Trend decomposition using LOESS”, while LOESS is a method for estimating nonlinear relationships." LOESS ("Locally estimated scatterplot smoothing") uses a *weighted* moving average across *all* points in the dataset, weighted by distance from the point being averaged.
+See Rob Hyndman's section on [STL decomposition](https://otexts.com/fpp2/stl.html) to learn how it compares to classical decomposition we saw in lecture: "STL is a versatile and robust method for decomposing time series. STL is an acronym for "Seasonal and Trend decomposition using LOESS", while LOESS is a method for estimating nonlinear relationships." LOESS ("Locally estimated scatterplot smoothing") uses a *weighted* moving average across *all* points in the dataset, weighted by distance from the point being averaged.
 
 Notice that it allows seasonality to vary over time (a major difference from classical decomposition, and important here since we do see changes in seasonality).
 
