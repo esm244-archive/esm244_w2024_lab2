@@ -462,6 +462,13 @@ Now, plot the actual energy values (energy_total), and the predicted values (sto
 ggplot(data = energy_predicted) +
   geom_line(aes(x = date, y = energy_total)) +
   geom_line(aes(x = date, y = .fitted), color = "red", alpha = .7)
+
+### or use named attributes:
+ggplot(data = energy_predicted) +
+  geom_line(aes(x = date, y = energy_total, color = 'Observed')) +
+  geom_line(aes(x = date, y = .fitted, color = 'Predicted'), alpha = .7) +
+  scale_color_manual(values = c('Observed' = 'black', 'Predicted' = 'red'))
+
 ```
 
 Cool, those look like pretty good predictions! (What if we used data from 2000-2018 to predict 2018-2023 values?)
